@@ -1,0 +1,122 @@
+require("./lib/waypoints/waypoint");
+require("./lib/waypoints/group");
+require("./lib/waypoints/context");
+require("./lib/waypoints/adapters/jquery");
+require("./lib/waypoints/shortcuts/inview");
+
+var project = require('../../settings');
+
+/* Event Handlers */
+(function ($) {
+    $(document).ready(function() {
+        var viewportWidth = window.innerWidth;
+
+        if (viewportWidth < 991) {
+            var $header = $('.header-wrap');
+            var $clone = $header.clone().addClass("clone").removeClass('main');
+            $header.before($clone);
+
+            $(window).scroll(function () {
+                var scroll = $(window).scrollTop();
+                var $target = $header.height();
+
+                if (scroll >= $target) {
+                    $clone.addClass('sticky');
+                    $header.addClass('u-hidden');
+                } else if (scroll <= $target) {
+                    $clone.removeClass('sticky');
+                    $header.removeClass('u-hidden');
+                }
+            });
+
+            $('.header-wrap button.hamburger').on('click', function () {
+                var $button = $('button.hamburger');
+                var $menu = $('.mobile-nav');
+
+                $button.toggleClass('is-active');
+
+                $menu.slideToggle({
+                    duration: 250,
+                    progress: function () {
+                        $(window).trigger('resize');
+                    }
+                });
+            });
+        }
+    });
+
+    $(document).ready(function() {
+        $('.builder-layout-hover-gallery .inner-wrap').show();
+        $('.builder-layout-parallax-section .parallax').parallax();
+
+        var $packery_gallery = $('.builder-layout-packery-gallery .packery-row').isotope({
+            itemSelector: '.packery-item',
+            layoutMode: 'packery',
+            packery: {
+                gutter: '.gutter-sizer'
+            },
+            percentPosition: true
+        });
+
+        if($packery_gallery.length >= 1) {
+            $(window).load(function() {
+                var intervalFunction = setInterval(function() {
+                    $grid_filter.isotope('layout');
+                }, 900);
+
+                setTimeout(function() {
+                    clearInterval(intervalFunction);
+                }, 10000);
+            });
+        }
+
+        // init Isotope
+        var $grid_filter = $('.builder-layout-hover-gallery .tiles-row').isotope({
+            itemSelector: '.single-tile',
+            layoutMode: 'packery',
+            packery: {
+                gutter: '.gutter-sizer'
+            },
+        });
+
+        if($grid_filter.length >= 1) {
+            $(window).load(function () {
+                $grid_filter.isotope('layout');
+            });
+        }
+
+        // bind filter button click
+        $('.sort-btns').on( 'click', 'button', function() {
+            var filterValue = $(this).attr('data-filter');
+            $grid_filter.isotope({ filter: filterValue });
+        });
+
+        // change is-checked class on buttons
+        $('.sort-btns').each( function(i, buttonGroup) {
+            var $buttonGroup = $(buttonGroup);
+            $buttonGroup.on( 'click', 'button', function() {
+                $buttonGroup.find('.is-checked').removeClass('is-checked');
+                $(this).addClass('is-checked');
+            });
+        });
+
+        var $slider = $('#auto-slider');
+
+        if($slider.length >= 1) {
+            var inview = new Waypoint.Inview({
+                element: $('#auto-slider')[0],
+                enter: function(direction) {
+                    $('.builder-component-gallery-slider .main-slideshow').flickity({
+                        // options
+                        contain: true,
+                        autoPlay: 5000,
+                        prevNextButtons: false,
+                        pageDots: true,
+                        wrapAround: true,
+                        setGallerySize: false
+                    });
+                }
+            });
+        }
+    });
+})(jQuery);
